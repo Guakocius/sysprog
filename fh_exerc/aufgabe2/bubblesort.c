@@ -11,10 +11,9 @@ int main(int argc, char *argv[]) {
     srand((unsigned int) time(NULL));
     int random = rand();
     int n = atoi(argv[1]);
-    int a[n];
-    char (*ptr) [__INT_MAX__] = malloc(n * sizeof(int));
+    int* a = malloc(n * sizeof(int));
     int stdin;
-    int len = (sizeof(a) / sizeof(a[0]));
+    int len = (sizeof(&a) / sizeof(a[0]));
 
     //---------------------------------------------------- Zahlen einlesen
     printf("Bitte %d ganze Zahlen eingeben: ", n);
@@ -47,6 +46,6 @@ int main(int argc, char *argv[]) {
     for (int m = 0; m < len; ++m) {
         printf("%d", m);
     }
-
+    free(a);
     return 0;
 }
