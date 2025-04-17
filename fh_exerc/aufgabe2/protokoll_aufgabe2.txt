@@ -1,0 +1,8 @@
+- Verhält sich das C-Programm bei allen Eingaben wie das Java-Programm?
+
+Sortiert genauso wie das Java-Programm.
+Allerdings, wenn man ein String eingibt, wie "Hallo", dann wird n-mal dieselbe Zahl geprintet. 
+Und wenn man eine sehr große Zahl wie "1000000000000000000000000000" eingibt, läuft das Programm weiter und stürzt nicht ab.
+Am Ende des Programms wird für diese Zahl "-1" geprintet.
+
+Selbst mit extrem großen Zahlen oder Char Arrays gibt valgrind keinen Fehler aus. Auch nicht mit der flag -s: "ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)"

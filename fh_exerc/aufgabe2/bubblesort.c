@@ -3,8 +3,8 @@
 #include <time.h>
 
 /* Bubblesort liest ganze Zahlen ein und sortiert sie aufsteigend.*/
-int main(int argc, char *argv[]) {
-    if (argc != 1) {
+int main(int argc, const char *argv[]) {
+    if (argc != 2) {
         fprintf(stderr, "Aufruf: gcc -o bubblesort bubblesort.c\n./bubblesort Anzahl\n");
         return 1;
     }
@@ -12,14 +12,14 @@ int main(int argc, char *argv[]) {
     int random = rand();
     int n = atoi(argv[1]);
     int* a = malloc(n * sizeof(int));
-    int stdin;
-    int len = (sizeof(&a) / sizeof(a[0]));
+    int scanner;
+    int len = n;
 
     //---------------------------------------------------- Zahlen einlesen
     printf("Bitte %d ganze Zahlen eingeben: ", n);
     int k = 0;
-    for (int i = 0; i < len && (scanf("%d", &stdin) > 0); ++i) {
-        a[i] = scanf("%d", &stdin);
+    for (int i = 0; i < len && (scanf("%d", &scanner) > 0); ++i) {
+        a[i] = scanner;
         ++k;
     }
 
@@ -44,7 +44,7 @@ int main(int argc, char *argv[]) {
     //---------------------------------------------------- Zahlen ausgeben
     printf("Sortierte Zahlenfolge: \n");
     for (int m = 0; m < len; ++m) {
-        printf("%d", m);
+        printf("%d\n", a[m]);
     }
     free(a);
     return 0;

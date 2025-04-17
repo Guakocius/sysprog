@@ -1,7 +1,7 @@
 // Bubblesort.java
 
-import java.util.Scanner;
 import java.util.Random;
+import java.util.Scanner;
 
 /**
  * Bubblesort liest ganze Zahlen ein und sortiert sie aufsteigend.
