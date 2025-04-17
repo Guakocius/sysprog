@@ -5,13 +5,16 @@
 /* Bubblesort liest ganze Zahlen ein und sortiert sie aufsteigend.*/
 int main(int argc, const char *argv[]) {
     if (argc != 2) {
-        fprintf(stderr, "Aufruf: gcc -o bubblesort bubblesort.c\n./bubblesort Anzahl\n");
+        fprintf(stderr, "./bubblesort Anzahl\n");
         return 1;
     }
     srand((unsigned int) time(NULL));
-    int random = rand();
     int n = atoi(argv[1]);
     int* a = malloc(n * sizeof(int));
+
+    if (a == NULL) {
+        fprintf(stderr, "Error: a wurde kein Speicher zugewiesen");
+    }
     int scanner;
     int len = n;
 
@@ -22,9 +25,8 @@ int main(int argc, const char *argv[]) {
         a[i] = scanner;
         ++k;
     }
-
     for (int i = k; i < len; ++i) {
-        a[i] = random;
+        a[i] = rand();
         printf("%d\n", a[i]);
     }
 
