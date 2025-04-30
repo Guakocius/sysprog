@@ -44,15 +44,15 @@ int main(int argc, const char *argv[]) {
     srand((unsigned int) time(NULL));
 
     printf("Unsortiertes Array:\n");
-    for (long unsigned i = 0; i < strlen(a); ++i) {
+    for (int i = 0; i < n; ++i) {
         
-        //char** ptrArr = malloc(sizeof(a) * sizeof(&argv[1] + '\0'));
-        /*a[i] = sprintf(malloc(sizeof(ptrArr)), "%c", r);
+       /* char** ptrArr = malloc(sizeof(n) * sizeof(&argv[1] + '\0'));
+        a[i] = sprintf(malloc(sizeof(ptrArr)), "%c", r);
         printf("%c ", a[i]);
-        free(ptrArr);*/
-        a[i] = rand();
-        //sprintf(malloc(sizeof(ptrArr)), "%s", &a[i]);
-        printf("%s", &a[i]);
+        free(ptrArr);
+        int r = rand();
+        a[i] = sprintf(malloc(sizeof(ptrArr)), "%c", r);
+        printf("%s", &a[i]);*/
     }
     printf("\n");
 
@@ -64,7 +64,7 @@ int main(int argc, const char *argv[]) {
     char* s = malloc(sizeof(a) * sizeof(a[0]));
     strcat(s, &a[0]);
     
-    for (long unsigned i = 1; i < strlen(a); ++i) {
+    for (int i = 1; i < n; ++i) {
         if (strcmp(&a[i], &a[i - 1]) == 0) {
             strcat(s, "*");
         } else {
