@@ -3,12 +3,12 @@
 #include <time.h>
 #include <string.h>
 
-void bubblesort(char* a) {
-    for (long unsigned i = strlen(a); i > 1; --i) {
+void bubblesort(char** a) {
+    for (long unsigned i = strlen(*a); i > 1; --i) {
         // größten Wert nach hinten schieben
         for (long unsigned j = 0; j < i -1; ++j) {
-            if (strcmp(&a[j], &a[j + 1]) > 0) {
-                char * tmp = malloc(sizeof(a));
+            if (strcmp(a[j], a[j + 1]) > 0) {
+                char** tmp = malloc(strlen(*a) * sizeof(char*));
                 tmp = &a[j + 1];
                 a[j + 1] = a[j];
                 a[j] = *tmp;
@@ -35,7 +35,7 @@ int main(int argc, const char *argv[]) {
     }
 
     //--------------------------------------------------- Strings wuerfeln
-    char* a = malloc(n * sizeof(char));
+    char** a = malloc(n * sizeof(char*));
 
     if (a == NULL) {
         fprintf(stderr, "Error: a wurde kein Speicher zugewiesen");
@@ -46,13 +46,10 @@ int main(int argc, const char *argv[]) {
     printf("Unsortiertes Array:\n");
     for (int i = 0; i < n; ++i) {
         
-       /* char** ptrArr = malloc(sizeof(n) * sizeof(&argv[1] + '\0'));
-        a[i] = sprintf(malloc(sizeof(ptrArr)), "%c", r);
-        printf("%c ", a[i]);
-        free(ptrArr);
         int r = rand();
-        a[i] = sprintf(malloc(sizeof(ptrArr)), "%c", r);
-        printf("%s", &a[i]);*/
+        a[i] = malloc(strlen(argv[1]) + 1);
+        
+        sprintf(a[i], "%d", r);
     }
     printf("\n");
 
@@ -62,14 +59,14 @@ int main(int argc, const char *argv[]) {
     //--------------------------------------------------- Strings ausgeben
     printf("Sortiertes Array:\n");
     char* s = malloc(sizeof(a) * sizeof(a[0]));
-    strcat(s, &a[0]);
+    strcat(s, a[0]);
     
     for (int i = 1; i < n; ++i) {
-        if (strcmp(&a[i], &a[i - 1]) == 0) {
+        if (strcmp(a[i], a[i - 1]) == 0) {
             strcat(s, "*");
         } else {
             strcpy(s, " ");
-            strcat(s, &a[i]);
+            strcat(s, a[i]);
         }
     }
 
