@@ -8,7 +8,7 @@
  * @param a
  * @param n
  */
-void bubblesort(char** a, int n) {
+void bubblesort(char* a, rsize_t n, rsize_t size ) {
     for (long unsigned i = n; i > 1; --i) {
         // größten Wert nach hinten schieben
         for (long unsigned j = 0; j < i - 1; ++j) {
@@ -42,7 +42,7 @@ int main(int argc, const char *argv[]) {
     }
 
     //--------------------------------------------------- Strings wuerfeln
-    char** a = malloc(n * sizeof(char*)); // Pointer Array a genügend Platz zuweisen
+    char* a = malloc(n * sizeof(char)); // Pointer Array a genügend Platz zuweisen
 
     if (a == NULL) {
         fprintf(stderr, "Error: a wurde kein Speicher zugewiesen");
@@ -51,7 +51,7 @@ int main(int argc, const char *argv[]) {
 
     srand((unsigned int) time(NULL));
 
-    int m = strlen(argv[1]) + 1;
+    int m = strlen(a) + 1;
 
     printf("Unsortiertes Array:\n");
     for (int i = 0; i < n; ++i) {
