@@ -18,7 +18,7 @@ void bubblesort(char** a, int n) {
                 a[j] = tmp;
             }
         }
-    } 
+    }
 } // bubblesort
 
 /**
@@ -55,10 +55,10 @@ int main(int argc, const char *argv[]) {
 
     printf("Unsortiertes Array:\n");
     for (int i = 0; i < n; ++i) {
-        
+
         int r = rand() % n;
         a[i] = malloc(m);
-        
+
         sprintf(a[i], "%d", r);
         printf("%s ", a[i]);
     }
@@ -70,9 +70,15 @@ int main(int argc, const char *argv[]) {
     //--------------------------------------------------- Strings ausgeben
     printf("Sortiertes Array:\n");
     char* s = malloc(n * m);
+
+    if (s == NULL) {
+        fprintf(stderr, "Error: s wurde kein Speicher zugewiesen");
+        free(a);
+        return 1;
+    }
     s[0] = '\0';
     strcat(s, a[0]);
-    
+
     // Ersetze mehrfach vorkommende Strings mit *
     for (int i = 1; i < n; ++i) {
         if (strcmp(a[i], a[i - 1]) == 0) {

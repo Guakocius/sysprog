@@ -8,17 +8,22 @@
  * @param a
  * @param n
  */
-void bubblesort(char* a, rsize_t n, rsize_t size ) {
-    for (long unsigned i = n; i > 1; --i) {
+void bubblesort(void* a, size_t n, size_t m, int (*cmp)(const char*, const char*) ) {
+    void* tmp = malloc(m * sizeof(char));
+
+    for (size_t i = n; i > 1; --i) {
         // größten Wert nach hinten schieben
-        for (long unsigned j = 0; j < i - 1; ++j) {
-            if (strcmp(a[j], a[j + 1]) > 0) {
-                char* tmp = a[j + 1];
-                a[j + 1] = a[j];
-                a[j] = tmp;
+        for (size_t j = 0; j < i - 1; ++j) {
+            char* str1 = (char*)a + j * m;
+            char* str2 = (char*)a + (j + 1) * m;
+            if (cmp((char*)str1, (char*)str2) > 0) {
+                memcpy(tmp, str2, m);
+                memcpy(str2, str1, m);
+                memcpy(str1, tmp, m);
             }
         }
-    } 
+    }
+    free(tmp);
 } // bubblesort
 
 /**
@@ -42,7 +47,8 @@ int main(int argc, const char *argv[]) {
     }
 
     //--------------------------------------------------- Strings wuerfeln
-    char* a = malloc(n * sizeof(char)); // Pointer Array a genügend Platz zuweisen
+    int m = strlen(argv[1]) + 1;
+    char* a = malloc(n * m); // Pointer a genügend Platz zuweisen
 
     if (a == NULL) {
         fprintf(stderr, "Error: a wurde kein Speicher zugewiesen");
@@ -51,41 +57,42 @@ int main(int argc, const char *argv[]) {
 
     srand((unsigned int) time(NULL));
 
-    int m = strlen(a) + 1;
+
 
     printf("Unsortiertes Array:\n");
     for (int i = 0; i < n; ++i) {
-        
+
         int r = rand() % n;
-        a[i] = malloc(m);
-        
-        sprintf(a[i], "%d", r);
-        printf("%s ", a[i]);
+
+        sprintf(&a[i * m], "%d", r);
+        printf("%s ", &a[i * m]);
     }
     printf("\n");
 
     //-------------------------------------------------- Strings sortieren
-    bubblesort(a, n);
+    bubblesort(a, n, m, strcmp);
 
     //--------------------------------------------------- Strings ausgeben
     printf("Sortiertes Array:\n");
     char* s = malloc(n * m);
+
+    if (s == NULL) {
+        fprintf(stderr, "Error: s wurde kein Speicher zugewiesen");
+        free(a);
+        return 1;
+    }
+
     s[0] = '\0';
-    strcat(s, a[0]);
-    
+    strcat(s, &a[0]);
+
     // Ersetze mehrfach vorkommende Strings mit *
     for (int i = 1; i < n; ++i) {
-        if (strcmp(a[i], a[i - 1]) == 0) {
+        if (strcmp(&a[i * m], &a[(i - 1) * m]) == 0) {
             strcat(s, "*");
         } else {
             strcat(s, " ");
-            strcat(s, a[i]);
+            strcat(s, &a[i * m]);
         }
-    }
-
-    // MemAddr Garbage Collection für alle a[i]
-    for (int i = 0; i < n; ++i) {
-        free(a[i]);
     }
 
     // Konkatinierter String s (StringBuilder-Äquivalent) ausgeben.
