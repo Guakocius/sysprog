@@ -13,14 +13,17 @@ enum filetype {
 
 struct fileinfo {
     struct fileinfo *next;
-    char *filename;
+    const char *filename;
     enum filetype type;
 
     union {
-        int size;
+        size_t size;
         struct fileinfo *subdir;
 
     };
 };
+struct fileinfo *fileinfo_create(const char* filename);
+static struct fileinfo *list_directory(const char *filename);
 
+typedef struct fileinfo fileinfo;
 #endif // FILEINFO_H
