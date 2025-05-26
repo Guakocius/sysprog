@@ -2,7 +2,6 @@
 #define FILEINFO_H
 
 #include <stdlib.h>
-#include <linux/limits.h>
 
 
 
@@ -14,7 +13,7 @@ enum filetype {
 
 struct fileinfo {
     struct fileinfo *next;
-    char filename[NAME_MAX + 1];
+    const char *filename;
     enum filetype type;
 
     union {
