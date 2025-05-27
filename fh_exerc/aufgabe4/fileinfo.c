@@ -76,7 +76,6 @@ static void print_other(const char *filename) {
 static void print_directory(char *path_relative, char *filename,
                             fileinfo *sub_dirs) {
 
-
     path_relative = calloc(sizeof(fileinfo), sizeof(filename));
 
     if (!path_relative) {
@@ -87,27 +86,36 @@ static void print_directory(char *path_relative, char *filename,
     strcpy(path_relative, filename);
     strcat(path_relative, "/");
 
-    if (sub_dirs->next) {
 
-        for (fileinfo *i = sub_dirs; i; i = i->next) {
-            if (i->type == filetype_directory) {
-                strcpy(i->filename, filename);
-                strcat(path_relative, i->filename);
+    for (fileinfo *i = sub_dirs; i; i = i->subdir) {
 
+        if (i->type == filetype_directory) {
+            strcpy(i->filename, filename);
+            printf("%s\n", i->filename);
 
-                print_directory(path_relative, i->filename, i->next);
-
-            } else if (i->type == filetype_regular) {
-                print_regular(i->filename, i->size);
-            } else {
-                print_other(i->filename);
+            while (i->next) {
+                if (i->next->type == filetype_directory) {
+                    printf("%s (directory)\n", i->next->filename);
+                    i = i->next;
+                    print_directory(path_relative, i->filename, i->next);
+                }
+                print_directory(path_relative, i->filename, i->subdir);
+                i = i->next;
             }
+            //sub_dirs = sub_dirs->subdir;
+            print_directory(path_relative, sub_dirs->filename, sub_dirs->subdir);
+            // strcat(path_relative, i->filename);
+
+        } else if (i->type == filetype_regular) {
+            print_regular(i->filename, i->size);
+        } else {
+            print_other(i->filename);
         }
-        printf("%s:\n", path_relative);
-    } else if (sub_dirs->subdir) {
-        for (fileinfo *i = sub_dirs->subdir; i; i = i->subdir) {
-            print_directory(path_relative, i->filename, i->subdir);
-        }
+        //sub_dirs = sub_dirs->subdir;
+        printf("\n");
+        /*strcpy(i->filename, i->subdir->filename);
+        printf("%s\n", i->filename);*/
+        // print_directory(path_relative, i->filename, i->subdir);
     }
     free(path_relative);
 }
@@ -122,7 +130,7 @@ void fileinfo_print(fileinfo *info) {
         print_regular(info->filename, size);
     } else if (info->type == filetype_directory) {
 
-        printf("%s:\n", info->filename);
+        // printf("%s:\n", info->filename);
         if (info->subdir) {
 
             // lstat(info->subdir->filename, &f_stat);
@@ -135,17 +143,18 @@ void fileinfo_print(fileinfo *info) {
 
 void fileinfo_destroy(fileinfo *info) {
 
-    if (info->type == filetype_regular) {
+    free(info);
+
+    /*if (info->type == filetype_regular) {
         for (fileinfo *i = info; i; i = info->next) {
 
-            free(info->next);
-        }
-    } else if (info->type == filetype_directory) {
-        while (info->subdir) {
-            fileinfo_destroy(info->subdir);
-        }
+            free(info);
+        }*/
+    //} else if (info->type == filetype_directory) {
+    /*while (info->subdir) {
+        fileinfo_destroy(info->subdir);
     }
-    free(info);
+}*/
 }
 
 fileinfo *fileinfo_create(const char *filename) {
