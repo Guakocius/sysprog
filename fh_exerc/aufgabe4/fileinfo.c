@@ -1,142 +1,148 @@
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <errno.h>
-#include <sys/stat.h>
 #include <dirent.h>
+#include <errno.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
 
 #include "fileinfo.h"
 
-struct stat file_stat;
-
 static fileinfo *list_directory(char *filename) {
     DIR *dir = opendir(filename);
+    struct stat f_stat;
+    lstat(filename, &f_stat);
+
+    chdir(filename);
     fileinfo *info = malloc(sizeof(fileinfo));
     fileinfo *head = NULL, *tail = NULL;
+
+    if (!chdir(filename)) {
+        return NULL;
+    }
+
+    if (!info) {
+        fprintf(stderr, "%s couldn't be read! (%d)\n", filename, errno);
+        return info = NULL;
+    }
     memset(info, 0, sizeof(fileinfo));
 
     strcpy(info->filename, filename);
 
-    if (!info) {
-       fprintf(stderr, "%s couldn't be read! (%d)\n", filename, errno);
-       return info = NULL;
-
-    }
     const struct dirent *d;
 
-    if (info == NULL) {
-        return NULL;
+    if (!dir) {
+        fprintf(stderr, "%s:\t%d", strerror(errno), errno);
     }
+    errno = 0;
+    while ((d = readdir(dir)) != NULL) {
 
-    while (dir) {
-        /*if (S_ISDIR(file_stat.st_mode)) {
-            chdir(info->filename);
-        }*/
-        errno = 0;
-        if ((d = readdir(dir)) != NULL) {
-
-            if (strcmp(d->d_name, ".") == 0 || strcmp(d->d_name, "..") == 0) {
-                //info = info->next;
-                continue;
-            }
-            chdir(info->filename);
-            info->subdir = fileinfo_create(d->d_name);
-
-            if (!info->subdir) continue;
-
-            if (!head) {
-                head = info;
-                head->next = info->subdir;
-                printf("Head:\t%s\n\n",head->filename);
-            } else {
-                tail = head->next;
-                //info->subdir = tail;
-                printf("Tail:\t%s\n\n",tail->filename);
-            }
-        } else {
-            if (errno != 0) {
-                fprintf(stderr, "%d : Error : %s\n", errno, strerror(errno));
-                closedir(dir);
-                return info->subdir = NULL;
-            }
-            chdir("..");
-            return info->next;
-
+        if (strcmp(d->d_name, ".") == 0 || strcmp(d->d_name, "..") == 0) {
+            // info = info->next;
+            continue;
         }
-        return head;
+        fileinfo *info_next = fileinfo_create(d->d_name);
+
+        if (!info_next)
+            continue;
+
+        if (!head) {
+            head = tail = info_next;
+        } else {
+            tail->next = info_next;
+            tail = info_next;
+        }
+    }
+    if (errno != 0) {
+        fprintf(stderr, "%d : Error : %s\n", errno, strerror(errno));
+        closedir(dir);
+        return info = NULL;
     }
     chdir("..");
     closedir(dir);
     return head;
 }
 
-static void print_regular(char *filename, size_t size) {
+static void print_regular(const char *filename, size_t size) {
 
-    fprintf(stdout, "%s (%s %lu)\n", filename, "regular", size);
-
+    fprintf(stdout, "%s (%s, %zu %s)\n", filename, "regular", size, "Byte");
 }
-static void print_other(char *filename) {
+static void print_other(const char *filename) {
     printf("%s (other)\n", filename);
 }
 
-static void print_directory(char *path_relative, char *filename, fileinfo *sub_dirs) {
+static void print_directory(char *path_relative, char *filename,
+                            fileinfo *sub_dirs) {
 
-    for (fileinfo *i = sub_dirs; i; i = i->next) {
-        if (S_ISDIR(file_stat.st_mode)) {
-            printf("%s (directory)\n", (char*)i);
-            if (i->next == sub_dirs) {
-                print_directory(path_relative, filename, i->next);
+
+    path_relative = calloc(sizeof(fileinfo), sizeof(filename));
+
+    if (!path_relative) {
+        fprintf(stderr, "%s\t%d\n", "Error: no allocated memory!", errno);
+    }
+
+    strcat(path_relative, "\0");
+    strcpy(path_relative, filename);
+    strcat(path_relative, "/");
+
+    if (sub_dirs->next) {
+
+        for (fileinfo *i = sub_dirs; i; i = i->next) {
+            if (i->type == filetype_directory) {
+                strcpy(i->filename, filename);
+                strcat(path_relative, i->filename);
+
+
+                print_directory(path_relative, i->filename, i->next);
+
+            } else if (i->type == filetype_regular) {
+                print_regular(i->filename, i->size);
+            } else {
+                print_other(i->filename);
             }
-        } if (S_ISREG(file_stat.st_mode)) {
-            print_regular(filename, sub_dirs->size);
-        } else {
-            print_other(filename);
+        }
+        printf("%s:\n", path_relative);
+    } else if (sub_dirs->subdir) {
+        for (fileinfo *i = sub_dirs->subdir; i; i = i->subdir) {
+            print_directory(path_relative, i->filename, i->subdir);
         }
     }
+    free(path_relative);
 }
 
 void fileinfo_print(fileinfo *info) {
-    //printf("fileinfo_print_subdirs:\t%s\n",info->next->subdir->filename);
-    //char *filename = info->filename;
     errno = 0;
-    printf("Type:\t%d\n",info->type);
-    printf("S_ISREG:\t%d\n", S_ISREG(file_stat.st_mode));
-    //printf("cwd:\t%d\n",chdir(".."));
-    //printf("Subdirs:\t%s\n",info->subdir->filename);
+
+    // struct stat f_stat;
 
     if (info->type == filetype_regular) {
-        printf("REG:\t%s\n",info->filename);
-        size_t size = file_stat.st_size;
+        size_t size = info->size;
         print_regular(info->filename, size);
-
     } else if (info->type == filetype_directory) {
 
-        printf("%s (directory)\n",info->filename);
-        printf("Subdirs:\t%s\n",info->subdir->filename);
+        printf("%s:\n", info->filename);
         if (info->subdir) {
-            printf("%s\n%s\n",info->subdir->filename,getcwd(info->filename, sizeof(fileinfo)));
-            printf("%s:\n", info->filename);
-            print_directory(getcwd(info->filename, sizeof(fileinfo)), info->filename, info->subdir);
-        } else {
-            printf("No Subdirs:\t%s\n",info->filename);
+
+            // lstat(info->subdir->filename, &f_stat);
+            print_directory("", info->filename, info->subdir);
         }
-
-
-
     } else if (info->type == filetype_other) {
         print_other(info->filename);
     }
-
 }
 
 void fileinfo_destroy(fileinfo *info) {
 
-    if (S_ISREG(file_stat.st_mode)) {
-        for (fileinfo *i = info; i != info->subdir; i = info->next) {
-            free(info->subdir);
+    if (info->type == filetype_regular) {
+        for (fileinfo *i = info; i; i = info->next) {
+
+            free(info->next);
+        }
+    } else if (info->type == filetype_directory) {
+        while (info->subdir) {
+            fileinfo_destroy(info->subdir);
         }
     }
     free(info);
@@ -145,6 +151,7 @@ void fileinfo_destroy(fileinfo *info) {
 fileinfo *fileinfo_create(const char *filename) {
 
     fileinfo *info = malloc(sizeof(fileinfo));
+    struct stat f_stat;
 
     if (!info) {
         fprintf(stderr, "No allocation done, %d %s", errno, strerror(errno));
@@ -154,32 +161,26 @@ fileinfo *fileinfo_create(const char *filename) {
     memset(info, 0, sizeof(fileinfo));
 
     strcpy(info->filename, filename);
-    lstat(filename, &file_stat);
+    lstat(filename, &f_stat);
 
     if (!filename) {
         free(info);
         return NULL;
-    } if (strlen(filename) > NAME_MAX) {
+    } else if (strlen(filename) > NAME_MAX) {
         errno = ENAMETOOLONG;
         free(info);
         return NULL;
-    }
-
-    if (lstat(filename, &file_stat) == -1) {
-        free(info);
-        return NULL;
     } else {
-        if (S_ISREG(file_stat.st_mode)) {
+        if (S_ISREG(f_stat.st_mode)) {
+
             info->type = filetype_regular;
-            info->size = file_stat.st_size;
-        } else if (S_ISDIR(file_stat.st_mode)) {
+            info->size = f_stat.st_size;
+        } else if (S_ISDIR(f_stat.st_mode)) {
             info->type = filetype_directory;
-            info->next = list_directory(info->filename);
-
-
+            info->subdir = list_directory(info->filename);
         } else {
+            printf("Other!\n");
             info->type = filetype_other;
-
         }
     }
     return info;
