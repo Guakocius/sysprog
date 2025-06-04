@@ -19,6 +19,7 @@ static fileinfo *list_directory(char *filename) {
     fileinfo *head = NULL, *tail = NULL;
 
     if (!chdir(filename)) {
+        free(info);
         return NULL;
     }
 
@@ -61,6 +62,7 @@ static fileinfo *list_directory(char *filename) {
     }
     chdir("..");
     closedir(dir);
+    fileinfo_destroy(info);
     return head;
 }
 
@@ -72,17 +74,22 @@ static void print_other(const char *filename) {
     printf("%s (other)\n", filename);
 }
 
-static void print_directory(char *path_relative, char *filename,
+static void print_directory(char *path_relative, const char *filename,
                             fileinfo *sub_dirs) {
+    char path[PATH_MAX];
 
     if (!path_relative) {
         fprintf(stderr, "%s\t%d\n", "Error: no allocated memory!", errno);
         return;
     }
 
-    strcpy(path_relative, filename);
+    // snprintf(path_relative, PATH_MAX, "%s", filename);
+    // printf("%s:\n", path_relative);
 
-    printf("%s:\n", path_relative);
+    if (strcmp(path_relative, "") == 0) {
+        printf("%s:\n", filename);
+        snprintf(path_relative, PATH_MAX, "%s", filename);
+    }
 
     for (fileinfo *i = sub_dirs; i; i = i->next) {
 
@@ -116,10 +123,9 @@ static void print_directory(char *path_relative, char *filename,
         printf("\n");
     }
     for (fileinfo *i = sub_dirs; i; i = i->next) {
-        if (i->type == filetype_directory && i->subdir) {
-            char path[PATH_MAX];
+        if (i->type == filetype_directory) {
             snprintf(path, PATH_MAX, "%s/%s", path_relative, i->filename);
-            //printf("\n");
+            printf("%s:\n", path);
             print_directory(path, i->filename, i->subdir);
         }
     }
@@ -128,37 +134,44 @@ static void print_directory(char *path_relative, char *filename,
 void fileinfo_print(fileinfo *info) {
     errno = 0;
 
-    // struct stat f_stat;
-
     if (info->type == filetype_regular) {
         size_t size = info->size;
         print_regular(info->filename, size);
     } else if (info->type == filetype_directory) {
         char *path_relative =
             malloc(sizeof(fileinfo) * (strlen(info->filename) + 1));
+        if (!path_relative) {
+            fprintf(stderr,
+                    "Error: No memory allocated for the path!\t%d\t%s\n", errno,
+                    strerror(errno));
+            return;
+        }
         strcpy(path_relative, "");
         printf("\n");
         print_directory(path_relative, info->filename, info->subdir);
+        free(path_relative);
 
     } else if (info->type == filetype_other) {
         print_other(info->filename);
-    }
+    } else
+        fprintf(stderr, "Error: Printing failed!\t%d\t%s", errno,
+                strerror(errno));
 }
 
 void fileinfo_destroy(fileinfo *info) {
 
-    free(info);
+    if (!info)
+        return;
 
-    /*if (info->type == filetype_regular) {
-        for (fileinfo *i = info; i; i = info->next) {
-
-            free(info);
-        }*/
-    //} else if (info->type == filetype_directory) {
-    /*while (info->subdir) {
-        fileinfo_destroy(info->subdir);
+    if (info->type == filetype_directory && info->subdir) {
+        fileinfo *subdir = info->subdir;
+        while (subdir) {
+            fileinfo *next_subdir = subdir->next;
+            fileinfo_destroy(subdir);
+            subdir = next_subdir;
+        }
     }
-}*/
+    free(info);
 }
 
 fileinfo *fileinfo_create(const char *filename) {
@@ -175,12 +188,16 @@ fileinfo *fileinfo_create(const char *filename) {
 
     strcpy(info->filename, filename);
 
-    if (!filename || (lstat(info->filename, &f_stat) == -1)) {
-        free(info);
+    if ((lstat(info->filename, &f_stat) == -1)) {
+        fileinfo_destroy(info);
         return NULL;
     } else if (strlen(filename) > NAME_MAX) {
         errno = ENAMETOOLONG;
-        free(info);
+        fileinfo_destroy(info);
+        return NULL;
+    } else if (strlen(filename) == 0) {
+        fileinfo_destroy(info);
+        fprintf(stderr, "Error: No filename!\t%d\t%s", errno, strerror(errno));
         return NULL;
     } else {
         if (S_ISREG(f_stat.st_mode)) {

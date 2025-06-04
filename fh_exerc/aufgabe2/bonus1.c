@@ -3,7 +3,7 @@
 #include <time.h>
 
 /* Bubblesort liest ganze Zahlen ein und sortiert sie aufsteigend.*/
-int main(int argc, const char *argv[]) {
+int main(void) {
 
     srand((unsigned int) time(NULL));
     int n = 100000000;
@@ -16,6 +16,7 @@ int main(int argc, const char *argv[]) {
     for (int i = 0; i < n; ++i) {
         int r = rand() % n;
         a[r] = r;
+        printf("%p\n",(void*)&a[r]);
     }
 
     free(a);
