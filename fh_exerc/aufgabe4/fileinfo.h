@@ -2,9 +2,7 @@
 #define FILEINFO_H
 
 #include <stdlib.h>
-#include <linux/limits.h>
-
-
+#include <limits.h>
 
 enum filetype {
     filetype_regular,
@@ -24,11 +22,13 @@ struct fileinfo {
     };
 };
 
-void fileinfo_print(struct fileinfo *f);
+typedef struct fileinfo fileinfo;
 
-void fileinfo_destroy(struct fileinfo *f);
+void fileinfo_print(const fileinfo *f);
+
+void fileinfo_destroy(fileinfo *f);
 struct fileinfo *fileinfo_create(const char* filename);
 
 
-typedef struct fileinfo fileinfo;
+
 #endif // FILEINFO_H
