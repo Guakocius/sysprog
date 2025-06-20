@@ -10,10 +10,7 @@ struct benotung {
 
     public:
 
-    explicit benotung(int note)
-    : note(note) {
-        this->note = note;
-    };
+    explicit benotung(int note);
 
     static const benotung beste, schlechteste;
 

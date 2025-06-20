@@ -9,15 +9,17 @@ class fachnoten_liste final {
     element *head;
     fachnote *note;
 
+
+    void (*delete_fachnote) (fachnote*);
+
   public:
-    explicit fachnoten_liste(void (*) (fachnote*));
+    explicit fachnoten_liste(void (*delete_fachnote)(fachnote*));
     ~fachnoten_liste();
 
     fachnoten_liste(const fachnoten_liste&) = delete;
     fachnoten_liste &operator=(const fachnoten_liste&) = delete;
     fachnoten_liste(fachnoten_liste&&) = delete;
     fachnoten_liste &operator=(fachnoten_liste&&) = delete;
-    void delete_fachnote(fachnote*) = delete;
 
     fachnoten_liste &insert(fachnote*);
 

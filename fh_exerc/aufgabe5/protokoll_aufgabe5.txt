@@ -1,1 +1,2 @@
-Implizit erzeugte Memberfunktionen:
+Implizit erzeugte Memberfunktionen bei benotung:
+Destruktor

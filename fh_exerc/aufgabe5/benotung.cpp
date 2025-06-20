@@ -1,18 +1,22 @@
 #include "benotung.h"
 
-int note;
+#include <string>
 
 bool benotung::is_valid_grade(int note) const {
     const int valid_grades[] = {10, 13, 17, 20, 23, 27, 30, 33, 37, 40, 50};
     for (int n : valid_grades) {
         if (note == n) {
             return true;
-        } else {
-            throw(std::invalid_argument("unzulaessige Note %d"), note);
-            return false;
         }
     }
     return false;
+}
+
+benotung::benotung(int note) 
+    : note(note) {
+    if (!is_valid_grade(note)) {
+        throw std::invalid_argument("unzulaessige Note " + std::to_string(note));
+    }
 }
 const benotung benotung::beste = benotung(10);
 

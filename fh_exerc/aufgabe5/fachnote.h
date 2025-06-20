@@ -10,18 +10,10 @@ class fachnote {
     const std::string fach;
     const benotung note;
 
-    fachnote();
+    fachnote(const std::string& fach, const benotung& note);
 
-    fachnote(const std::string& fach, const benotung& note)
-    : fach(fach), note(note) {
-        if (fach.length() == 0) throw std::invalid_argument("Fach darf nicht die Länge 0 haben!");
-    };
-
-    fachnote(const std::string&&, const benotung&&) = delete;
-    int &length() = delete;
-    bool operator==(std::string&&) = delete;
-
-
-    virtual ~fachnote();
+    fachnote() = delete;
+    fachnote(std::string&, benotung&(int)) = delete;
+    fachnote& operator=(const fachnote&) = delete;
 };
 #endif // !FACHNOTE_H
