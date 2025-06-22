@@ -1,9 +1,9 @@
 #ifndef FACHNOTE_H
 #define FACHNOTE_H
 
-#include <string>
-
 #include "benotung.h"
+
+#include <string>
 
 class fachnote {
     public:
@@ -12,8 +12,7 @@ class fachnote {
 
     fachnote(const std::string& fach, const benotung& note);
 
-    fachnote() = delete;
-    fachnote(std::string&, benotung&(int)) = delete;
+    fachnote(const fachnote&) = delete;
     fachnote& operator=(const fachnote&) = delete;
 };
 #endif // !FACHNOTE_H

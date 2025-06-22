@@ -1,21 +1,37 @@
 #include "benotung.h"
 
 #include <string>
+#include <stdexcept>
 
-bool benotung::is_valid_grade(int note) const {
+
+/**
+ * @author Alexander Engelhardt
+ * @version 19.06.2025
+ */
+
+namespace {
     const int valid_grades[] = {10, 13, 17, 20, 23, 27, 30, 33, 37, 40, 50};
-    for (int n : valid_grades) {
-        if (note == n) {
-            return true;
-        }
-    }
-    return false;
+
 }
 
 benotung::benotung(int note) 
     : note(note) {
-    if (!is_valid_grade(note)) {
+    switch(note) {
+        case 10:
+        case 13:
+        case 17:
+        case 20:
+        case 23:
+        case 27:
+        case 30:
+        case 33:
+        case 37:
+        case 40:
+        case 50:
+        break;
+        default:
         throw std::invalid_argument("unzulaessige Note " + std::to_string(note));
+        break;
     }
 }
 const benotung benotung::beste = benotung(10);

@@ -7,9 +7,6 @@ class fachnoten_liste final {
   private:
     class element;
     element *head;
-    fachnote *note;
-
-
     void (*delete_fachnote) (fachnote*);
 
   public:

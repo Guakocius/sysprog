@@ -1,13 +1,18 @@
 #include "fachnoten_liste.h"
 #include <iostream>
 
+/**
+ * @author Alexander Engelhardt
+ * @version 19.06.2025
+ */
+
 //----------------------------------------------------- Klasse fachnoten_liste::element
 
 class fachnoten_liste::element final {
     element *next;
-    fachnote* note;
+    fachnote *note;
 
-    element(element *e, fachnote* f)
+    element(element *e, fachnote *f)
     : next(e), note(f) {};
 
     friend class fachnoten_liste;
@@ -29,24 +34,19 @@ fachnoten_liste::iterator& fachnoten_liste::iterator::operator++() {
 
 //--------------------------------------------------- Member-Funktionen fachnoten_liste
 fachnoten_liste::fachnoten_liste(void (*delete_fachnote) (fachnote*))
-: head(nullptr), note(nullptr), delete_fachnote(delete_fachnote) {};
+: head(nullptr), delete_fachnote(delete_fachnote) {};
 
 fachnoten_liste::~fachnoten_liste() {
     element *e = head;
-    fachnote *f = e->note;
     while (e != nullptr) {
         element *x = e;
-        fachnote *fx = f;
         e = e->next;
-        f = this->note;
-        delete_fachnote(fx);
+        delete_fachnote(x->note);
         delete x;
-        //delete fx;
     }
 }
 
 fachnoten_liste &fachnoten_liste::insert(fachnote *f) {
-    std::cerr << "insert: " << f->fach << "\n";
     this->head = new element(this->head, f);
     return *this;
 }
