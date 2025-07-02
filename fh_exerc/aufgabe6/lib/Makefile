@@ -1,21 +1,35 @@
 CXX = g++
-CXXFLAGS = -Wall -fpic -c -o
+CXXFLAGS = -Wall -fpic
+RM = rm -f
+
+LIBDYNFLAGS = -shared
+LIBSTATFLAGS = ar rcs
+
 SRC = ../../aufgabe5
 LIBTYPE = a # Default, kann durch Userinput geändert werden
 CXXFILES = $(wildcard $(SRC)/*.cpp)
+HEADERS = $(wildcard $(SRC)/*.h)
 OBJ = $(notdir $(CXXFILES:.cpp=.o))
 LIBNAME = aufgabe6
+LIB = lib
 
-.PHONY: all clean
+.PHONY: all clean install uninstall
 
-all: lib$(LIBNAME).$(LIBTYPE) 
+all: $(LIB)$(LIBNAME).$(LIBTYPE) 
 
-$(TARGET): $(OBJ)
+%.o:$(SRC)/%.cpp
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
-$(OBJ): $(CXXFILES)
-	$(CXX) $(CXXFLAGS) $@ $<
+$(LIB)$(LIBNAME).so: $(OBJ)
+	$(CXX) $(LIBDYNFLAGS) $^ -o $@
 
+$(LIB)$(LIBNAME).a: $(OBJ)
+	$(LIBSTATFLAGS) $@ $^
 
 clean:
-	rm $(OBJ) lib* 
+	$(RM) $(OBJ) lib* depend
 
+depend: $(CXXFILES) $(HEADERS)
+	$(CXX) $(CXXFLAGS) -MM $(CXXFILES) > $@
+
+include depend
